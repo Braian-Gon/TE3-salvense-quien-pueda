@@ -1,0 +1,14 @@
+# Habilitar el motor de reescritura
+RewriteEngine On
+RewriteBase /
+
+# Evitar que se listen los directorios
+Options -Indexes
+
+# Si la petición corresponde a un archivo o carpeta real, servirlo directamente
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . / [L,R=301]
+
+# Redirigir el resto de las peticiones a index.php pasando la ruta como parámetro
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
