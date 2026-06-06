@@ -6,6 +6,10 @@ GO
 
 -- Crear Usuarios
 
+create login Administrador with password ='Admin1234';
+GO
+create user Administrador for login Administrador;
+
 create login WEB with password ='WEB1234';
 GO
 create user WEB for login WEB;

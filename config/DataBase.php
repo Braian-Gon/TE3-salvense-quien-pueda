@@ -5,10 +5,10 @@ use PDO;
 use PDOException;
 
 class DataBase {
-    //Para controlar la instancia existente
     //Para crear la conexion correspondiente
     public $connection;
     public function __construct() {
+        # Obtiene los datos de conexión desde las variables de entorno cargadas por dotenv
         $serverName = $_ENV['DB_HOST']; 
         $database = $_ENV['DB_NAME'];
         $username = $_ENV['DB_USER'];
@@ -21,7 +21,7 @@ class DataBase {
             $this->connection = new PDO($dsn, $username, $password);
             //Habilita la respuesta de la BD como excepciones PHP en caso de fallar
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            //Me permite recibir respuestas como array asociativo
+            //Me permite recibir respuestas como objetos
             $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
             
         } catch (PDOException $e) {
