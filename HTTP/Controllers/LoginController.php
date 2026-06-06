@@ -1,9 +1,7 @@
 <?php
 
 namespace HTTP\Controllers;
-
-use DataBase;
-use PDO;
+use HTTP\Models\Persona;
 
 class LoginController
 {
@@ -11,13 +9,10 @@ class LoginController
     {
         include __DIR__ . '/../views/login.php'; 
     }
-    public function veradmin()
-    {
-        $db = DataBase::getInstance();
-        $sql = "SELECT * FROM Administrador where id_administrador = 1;";
-        $stmt = $db->prepare($sql);
-        $stmt->execute();
-        $resultado = $stmt->fetchAll();
-        echo json_encode($resultado);
+    public function login(){
+        $datos = file_get_contents('php://input');
+        $data = json_decode($datos, true);
+        $autenticar = new Persona($data);
+        $autenticar->login();
     }
 }

@@ -2,41 +2,57 @@
 
 namespace HTTP\Router;
 
+use HTTP\Middlewares\AdminMiddleware;
+use HTTP\Middlewares\AllMiddleware;
+
 class Router {
 
 
-    private static $getRutas;
-    private static $postRutas;
-    private static $putRutas;
+    private  $getRutas;
+    private  $postRutas;
+    private  $protectedRutas;
 
-    public static function get($url, $fn){
-        self::$getRutas[$url] = $fn;
+    public function __construct(protected AdminMiddleware $adminMiddleware = new AdminMiddleware(),
+    protected AllMiddleware $allMiddleware = new AllMiddleware())
+    {
     }
 
-    public static function post($url, $fn){
-        self::$postRutas[$url] = $fn;
-    }
-    public static function put($url, $fn){
-        self::$putRutas[$url] = $fn;
+    public function get($url, $fn, $middleware = null){
+        $this->getRutas[$url] = $fn;
+        $this->protectedRutas[$url] = $middleware;
     }
 
-    public static function comprobarRutas(){
+    public function post($url, $fn, $middleware = null){
+        $this->postRutas[$url] = $fn;
+        $this->protectedRutas[$url] = $middleware;
+    }
+
+    public function comprobarRutas(){
 
         $urlActual = $_SERVER['PATH_INFO'] ?? '/';
         $metodo = $_SERVER['REQUEST_METHOD'];
 
         switch ($metodo){
             case 'GET': 
-                $funcion = self::$getRutas[$urlActual] ?? null;
+                $funcion = $this->getRutas[$urlActual] ?? null;
                 break;
             case 'POST':
-                $funcion = self::$postRutas[$urlActual] ?? null;
+                $funcion = $this->postRutas[$urlActual] ?? null;
                 break;
-            case 'PUT':
-                $funcion = self::$putRutas[$urlActual] ?? null;
+            default:
+                request(405, "Método no permitido");
+                exit;
         }
 
-        if($funcion){
+        if ($funcion && $this->protectedRutas[$urlActual] === 'administrador') {
+            $this->adminMiddleware->validarAdmin($funcion);
+            exit;
+        }
+        elseif ($funcion && $this->protectedRutas[$urlActual] === 'all') {
+            $this->allMiddleware->validarAll($funcion);
+            exit;
+        }
+        elseif($funcion){
             call_user_func($funcion);
 
         }else {
